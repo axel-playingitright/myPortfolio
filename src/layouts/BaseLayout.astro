@@ -1,0 +1,18 @@
+---
+import "../styles/global.css";
+
+const { title = "Axel Xavier Rolón — Senior QA Analyst" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content="Career portfolio of Axel Xavier Rolón, Senior QA Analyst." />
+    <title>{title}</title>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

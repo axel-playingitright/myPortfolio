@@ -1,0 +1,122 @@
+---
+import { experience } from "../data/resume";
+---
+
+<div class="experience-explorer">
+  <div class="experience-overview" id="experience-overview">
+    <div class="explorer-heading">
+      <div>
+        <p class="label">Career timeline</p>
+        <h3>Experience by company</h3>
+      </div>
+      <span class="explorer-hint">Select a company ↗</span>
+    </div>
+
+    <div class="company-grid">
+      {experience.map((company, index) => (
+        <button class="company-card" type="button" data-company-index={index}>
+          <span class="company-index">{String(index + 1).padStart(2, "0")}</span>
+          <span class="company-main">
+            <strong>{company.company}</strong>
+            <small>{company.period}</small>
+          </span>
+          <span class="company-count">{company.roles.length} {company.roles.length === 1 ? "project" : "projects"}</span>
+          <span class="company-arrow">↗</span>
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <div class="company-detail" id="company-detail" aria-hidden="true">
+    <button class="back-button" id="experience-back" type="button"><span>←</span> All companies</button>
+
+    <div class="detail-heading">
+      <div>
+        <p class="label" id="detail-period"></p>
+        <h3 id="detail-company"></h3>
+      </div>
+      <span class="explorer-hint">Select a project ↗</span>
+    </div>
+
+    <div class="project-list" id="project-list"></div>
+
+    <div class="project-detail" id="project-detail" aria-hidden="true">
+      <button class="project-back" id="project-back" type="button">← Projects</button>
+      <div>
+        <p class="label" id="project-period"></p>
+        <h4 id="project-title"></h4>
+        <p class="project-description" id="project-description"></p>
+        <div class="tags" id="project-tags"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ companies: experience }}>
+  const overview = document.querySelector("#experience-overview");
+  const detail = document.querySelector("#company-detail");
+  const detailCompany = document.querySelector("#detail-company");
+  const detailPeriod = document.querySelector("#detail-period");
+  const projectList = document.querySelector("#project-list");
+  const projectDetail = document.querySelector("#project-detail");
+  const projectPeriod = document.querySelector("#project-period");
+  const projectTitle = document.querySelector("#project-title");
+  const projectDescription = document.querySelector("#project-description");
+  const projectTags = document.querySelector("#project-tags");
+
+  const renderProjects = (company) => {
+    projectList.innerHTML = company.roles.map((role, index) => `
+      <button class="project-row" type="button" data-project-index="${index}">
+        <span class="project-number">${String(index + 1).padStart(2, "0")}</span>
+        <span class="project-main"><strong>${role.title}</strong><small>${role.period}</small></span>
+        <span class="project-arrow">↗</span>
+      </button>
+    `).join("");
+
+    projectList.querySelectorAll(".project-row").forEach((button) => {
+      button.addEventListener("click", () => {
+        const role = company.roles[Number(button.dataset.projectIndex)];
+        projectPeriod.textContent = role.period;
+        projectTitle.textContent = role.title;
+        projectDescription.textContent = role.details;
+        projectTags.innerHTML = role.tags.map((tag) => `<span>${tag}</span>`).join("");
+        projectList.classList.add("is-hidden");
+        projectDetail.classList.add("is-visible");
+        projectDetail.setAttribute("aria-hidden", "false");
+      });
+    });
+  };
+
+  document.querySelectorAll("[data-company-index]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const company = companies[Number(button.dataset.companyIndex)];
+      detailCompany.textContent = company.company;
+      detailPeriod.textContent = company.period;
+      renderProjects(company);
+      overview.classList.add("is-fading");
+      setTimeout(() => {
+        overview.classList.add("is-hidden");
+        detail.classList.add("is-visible");
+        detail.setAttribute("aria-hidden", "false");
+      }, 220);
+    });
+  });
+
+  document.querySelector("#experience-back").addEventListener("click", () => {
+    detail.classList.add("is-fading");
+    setTimeout(() => {
+      detail.classList.remove("is-visible", "is-fading");
+      detail.setAttribute("aria-hidden", "true");
+      projectList.classList.remove("is-hidden");
+      projectDetail.classList.remove("is-visible");
+      projectDetail.setAttribute("aria-hidden", "true");
+      overview.classList.remove("is-hidden", "is-fading");
+    }, 220);
+  });
+
+  document.querySelector("#project-back").addEventListener("click", () => {
+    projectDetail.classList.remove("is-visible");
+    projectDetail.setAttribute("aria-hidden", "true");
+    projectList.classList.remove("is-hidden");
+  });
+</script>
